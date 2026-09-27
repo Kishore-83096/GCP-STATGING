@@ -36,3 +36,16 @@ jobs:
         env:
           REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL || 'http://localhost:5000' }}
         run: docker run --rm -e REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL" monorepo-frontend npm test -- --runInBand
+
+  secret-scan:
+    name: Scan for Exposed Secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Full Repository History
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan Repository with Gitleaks in Docker
+        run: docker run --rm -v "$GITHUB_WORKSPACE:/repo" zricethezav/gitleaks:latest detect --source=/repo --redact --verbose --exit-code 1
