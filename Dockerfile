@@ -11,7 +11,7 @@ CMD ["python", "app.py"]
 FROM node:18-alpine AS frontend
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm ci
 COPY frontend/ .
 EXPOSE 3000
 CMD ["npm", "start"]
