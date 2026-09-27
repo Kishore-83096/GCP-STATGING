@@ -15,3 +15,15 @@ RUN npm ci
 COPY frontend/ .
 EXPOSE 3000
 CMD ["npm", "start"]
+
+# --- CI: Backend Checks ---
+FROM backend AS backend-ci
+RUN pip install --no-cache-dir ruff
+RUN python -m pytest && ruff check . && python -m compileall -q .
+
+# --- CI: Frontend Checks ---
+FROM frontend AS frontend-ci
+RUN npm run lint && npm test -- --runInBand && npm run build
+
+# Keep the frontend runtime as the default image target.
+FROM frontend AS frontend-runtime

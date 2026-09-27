@@ -7,35 +7,27 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test-backend:
-    name: Run Backend Tests (Flask)
+  backend-ci:
+    name: Backend Lint, Tests, and Build Checks
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build Backend Image
-        run: docker build --target backend -t monorepo-backend .
+      - name: Run Backend Checks in Docker
+        run: docker build --target backend-ci -t monorepo-backend-ci .
 
-      - name: Run Backend Tests in Docker
-        run: docker run --rm monorepo-backend python -m pytest
-
-  test-frontend:
-    name: Run Frontend Tests (React)
+  frontend-ci:
+    name: Frontend Lint, Tests, and Production Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build Frontend Image
-        run: docker build --target frontend -t monorepo-frontend .
-
-      - name: Run Frontend Tests in Docker
-        env:
-          REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL || 'http://localhost:5000' }}
-        run: docker run --rm -e REACT_APP_BACKEND_URL="$REACT_APP_BACKEND_URL" monorepo-frontend npm test -- --runInBand
+      - name: Run Frontend Checks in Docker
+        run: docker build --target frontend-ci -t monorepo-frontend-ci .
 
   secret-scan:
     name: Scan for Exposed Secrets
