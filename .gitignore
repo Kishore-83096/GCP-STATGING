@@ -1,0 +1,14 @@
+# Node.js dependencies and builds
+node_modules/
+frontend/build/
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# General build output
+build/
+dist/
