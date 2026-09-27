@@ -12,3 +12,9 @@ venv/
 # General build output
 build/
 dist/
+
+# Local environment configuration
+.env
+.env.*
+!.env.example
+!**/.env.example
