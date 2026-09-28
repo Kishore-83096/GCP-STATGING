@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import App from './App';
 
 beforeEach(() => {
+	window.history.replaceState({}, '', '/');
 	global.fetch = jest.fn((url) => Promise.resolve({
 		ok: true,
 		json: () => Promise.resolve(url.endsWith('/api/health')
@@ -26,6 +27,19 @@ test('rechecks backend status when requested', async () => {
 	await waitFor(() => expect(screen.getAllByText('Connection successful')).toHaveLength(2));
 	fireEvent.click(screen.getByRole('button', { name: 'Check again' }));
 	await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(4));
+});
+
+test('opens separate login and registration pages from the landing header', () => {
+	render(<App />);
+
+	fireEvent.click(screen.getByRole('link', { name: 'Log in' }));
+	expect(screen.getByRole('heading', { name: 'Log in' })).toBeInTheDocument();
+	expect(screen.getByLabelText('Email address')).toBeInTheDocument();
+
+	fireEvent.click(screen.getByRole('link', { name: 'Create an account' }));
+	expect(screen.getByRole('heading', { name: 'Create account' })).toBeInTheDocument();
+	expect(within(screen.getByRole('navigation', { name: 'Account' }))
+		.getByRole('link', { name: 'Log in' })).toBeInTheDocument();
 });
 
 test('shows a failed backend connection when the health request fails', async () => {
