@@ -1,6 +1,7 @@
 variable "repository_url" {
   description = "HTTPS URL of the GitHub repository connected to Render."
   type        = string
+  default     = "https://github.com/Kishore-83096/GCP-STATGING.git"
 }
 
 variable "backend_service_name" {

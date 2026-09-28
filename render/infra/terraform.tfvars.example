@@ -1,3 +1,3 @@
-repository_url       = "https://github.com/OWNER/REPOSITORY"
+repository_url       = "https://github.com/Kishore-83096/GCP-STATGING.git"
 backend_service_name = "zylo-backend"
 frontend_site_name   = "zylo-frontend"
