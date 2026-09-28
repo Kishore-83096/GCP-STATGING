@@ -15,7 +15,9 @@ function LandingPage() {
 		Promise.allSettled([checkBackendHealth(), getWelcomeMessage()]).then(([health, welcome]) => {
 			if (!isCurrent) return;
 
-			setBackendStatus(health.status === 'fulfilled' ? 'online' : 'offline');
+			setBackendStatus(
+				health.status === 'fulfilled' && health.value.status === 'ok' ? 'online' : 'offline'
+			);
 			setWelcomeMessage(
 				welcome.status === 'fulfilled'
 					? welcome.value.message
@@ -30,7 +32,7 @@ function LandingPage() {
 	}, [refreshKey]);
 
 	const isChecking = backendStatus === 'checking';
-	const statusLabel = isChecking ? 'Checking connection' : backendStatus === 'online' ? 'Backend active' : 'Backend unavailable';
+	const statusLabel = isChecking ? 'Checking connection' : backendStatus === 'online' ? 'Connection successful' : 'Connection failed';
 
 	return (
 		<div className="landing-page">
