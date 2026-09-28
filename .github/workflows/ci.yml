@@ -89,12 +89,29 @@ jobs:
         run: |
           set -euo pipefail
           for service_id in "$RENDER_BACKEND_SERVICE_ID" "$RENDER_FRONTEND_SERVICE_ID"; do
-            response=$(curl --fail-with-body --silent --show-error \
+            if [[ -z "$service_id" || "$service_id" == "null" ]]; then
+              echo "A Render service ID is missing. Set both production environment variables: RENDER_BACKEND_SERVICE_ID and RENDER_FRONTEND_SERVICE_ID." >&2
+              exit 1
+            fi
+
+            response_file=$(mktemp)
+            http_status=$(curl --silent --show-error \
+              --output "$response_file" \
+              --write-out '%{http_code}' \
               --request POST "https://api.render.com/v1/services/${service_id}/deploys" \
               --header "Authorization: Bearer ${RENDER_API_KEY}" \
               --header "Content-Type: application/json" \
               --data "{\"commitId\":\"${GITHUB_SHA}\"}")
-            deploy_id=$(printf '%s' "$response" | jq -r '.id')
+
+            if [[ "$http_status" -lt 200 || "$http_status" -ge 300 ]]; then
+              echo "Render rejected the deploy request for service ${service_id} (HTTP ${http_status}):" >&2
+              jq -r '.message // .error // .' "$response_file" >&2 || cat "$response_file" >&2
+              rm -f "$response_file"
+              exit 1
+            fi
+
+            deploy_id=$(jq -r '.id // empty' "$response_file")
+            rm -f "$response_file"
             test -n "$deploy_id" && test "$deploy_id" != "null"
             echo "Triggered Render deploy ${deploy_id} for service ${service_id}."
           done
