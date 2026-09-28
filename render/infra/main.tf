@@ -1,30 +1,28 @@
 resource "render_web_service" "backend" {
   name              = var.backend_service_name
   plan              = "free"
-  region            = var.backend_region
+  region            = "singapore"
   health_check_path = "/api/health"
 
   runtime_source = {
     docker = {
       repo_url        = var.repository_url
-      branch          = var.backend_branch
+      branch          = "main"
       dockerfile_path = "./Dockerfile"
       context         = "."
       auto_deploy     = false
     }
   }
 
-  env_vars = {
-    FRONTEND_URL = {
-      value = "https://${var.frontend_site_name}.onrender.com"
-    }
+  lifecycle {
+    ignore_changes = [env_vars]
   }
 }
 
 resource "render_static_site" "frontend" {
   name           = var.frontend_site_name
   repo_url       = var.repository_url
-  branch         = var.frontend_branch
+  branch         = "main"
   root_directory = "frontend"
   build_command  = "npm ci && npm run build"
   publish_path   = "build"
@@ -32,7 +30,7 @@ resource "render_static_site" "frontend" {
 
   env_vars = {
     REACT_APP_BACKEND_URL = {
-      value = "https://${var.backend_service_name}.onrender.com"
+      value = render_web_service.backend.url
     }
   }
 }

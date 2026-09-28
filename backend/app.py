@@ -6,9 +6,7 @@ app = Flask(__name__)
 
 @app.after_request
 def add_cors_headers(response):
-	response.headers['Access-Control-Allow-Origin'] = os.environ.get(
-		'FRONTEND_URL', 'http://localhost:3000'
-	)
+	response.headers['Access-Control-Allow-Origin'] = '*'
 	return response
 
 @app.route('/api/welcome', methods=['GET'])

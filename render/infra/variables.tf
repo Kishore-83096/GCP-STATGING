@@ -4,30 +4,13 @@ variable "repository_url" {
 }
 
 variable "backend_service_name" {
-  description = "Render Web Service name (also used to form its default Render URL)."
+  description = "Name for the Render backend Web Service."
   type        = string
   default     = "zylo-backend"
 }
 
 variable "frontend_site_name" {
-  description = "Render Static Site name (also used to form its default Render URL)."
+  description = "Name for the Render frontend Static Site."
   type        = string
   default     = "zylo-frontend"
-}
-
-variable "backend_branch" {
-  description = "Git branch deployed to the Render backend service."
-  type        = string
-  default     = "main"
-}
-
-variable "frontend_branch" {
-  description = "Git branch deployed to the Render frontend static site."
-  type        = string
-  default     = "main"
-}
-
-variable "backend_region" {
-  description = "Render region for the backend Web Service."
-  type        = string
 }
