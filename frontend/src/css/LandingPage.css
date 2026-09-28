@@ -40,6 +40,13 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .landing-header { min-height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
 .brand { font-size: 29px; font-weight: 700; letter-spacing: 0; }
 .brand span { color: var(--red); }
+.header-actions, .account-nav { display: flex; align-items: center; gap: 18px; }
+.account-nav { gap: 10px; }
+.account-email { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.account-link { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 0 13px; border: 1px solid var(--line); border-radius: 3px; background: transparent; color: var(--ink); cursor: pointer; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.account-link:hover { border-color: var(--blue); background: var(--blue-soft); }
+.account-link-primary { border-color: var(--red); background: var(--red); color: var(--paper); }
+.account-link-primary:hover { border-color: #ff6472; background: #ff6472; }
 .header-status, .service-badge { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 600; }
 .status-indicator, .service-badge > span { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: var(--blue); }
 .status-online, .service-badge.is-online { color: var(--green); }
@@ -87,6 +94,22 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .api-label { color: var(--blue); }
 .landing-footer { min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; letter-spacing: 0; }
 .footer-divider { padding: 0 6px; color: var(--red); }
+.auth-main { grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr); }
+.auth-panel { padding-bottom: 0; }
+.auth-form { display: grid; gap: 19px; padding: 0 0 24px; }
+.auth-field { display: grid; gap: 8px; }
+.auth-field label { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.auth-field input { width: 100%; min-height: 46px; padding: 0 13px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); font: 13px var(--sans); }
+.auth-field input::placeholder { color: #52718f; }
+.auth-field input:focus { border-color: var(--blue); outline: 2px solid #68b4ff35; outline-offset: 1px; }
+.auth-feedback { padding: 11px 12px; border-left: 3px solid var(--red); background: #ff3b4d18; color: #ff8791; font-size: 12px; line-height: 1.5; }
+.auth-submit { min-height: 44px; border: 1px solid var(--red); border-radius: 3px; background: var(--red); color: var(--paper); cursor: pointer; font-size: 12px; font-weight: 700; }
+.auth-submit:hover:not(:disabled) { border-color: #ff6472; background: #ff6472; }
+.auth-submit:disabled { cursor: wait; opacity: 0.65; }
+.auth-switch { padding: 16px 0 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+.auth-switch a { color: var(--blue); font-weight: 600; }
+.auth-switch a:hover { color: var(--green); }
+.auth-note { border-left-color: var(--blue); }
 
 @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes status-pulse { 50% { opacity: 0.4; } }
@@ -94,6 +117,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 @media (max-width: 800px) {
 	.landing-header, .landing-footer, .landing-main { width: min(calc(100% - 48px), 620px); }
 	.landing-main { grid-template-columns: 1fr; gap: 46px; padding: 64px 0; }
+  .auth-main { grid-template-columns: 1fr; }
 	.intro h1 { font-size: clamp(54px, 11vw, 76px); }
 }
 
@@ -101,6 +125,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 	.landing-header, .landing-footer, .landing-main { width: calc(100% - 36px); }
 	.landing-header { min-height: 70px; }
 	.header-status { font-size: 10px; }
+  .header-actions { gap: 8px; }
+  .account-nav { gap: 6px; }
+  .account-link { min-height: 32px; padding: 0 9px; font-size: 10px; }
+  .landing-header { flex-wrap: wrap; padding: 10px 0; row-gap: 10px; }
+  .header-actions { margin-left: auto; }
+  .header-status { flex: 1 0 100%; order: 1; }
 	.landing-main { gap: 38px; padding: 48px 0; }
 	.intro h1 { font-size: 54px; }
 	.intro-copy { margin: 22px 0 30px; font-size: 14px; }

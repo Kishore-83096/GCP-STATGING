@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { checkBackendHealth, getWelcomeMessage } from '../api/backendApi';
+import { SiteFooter, SiteHeader } from './SiteChrome';
 import '../css/LandingPage.css';
 
-function LandingPage() {
+function LandingPage({ currentUser, onLogout, onNavigate }) {
 	const [backendStatus, setBackendStatus] = useState('checking');
 	const [welcomeMessage, setWelcomeMessage] = useState('Connecting to the Zylo backend...');
 	const [lastChecked, setLastChecked] = useState(null);
@@ -36,13 +37,13 @@ function LandingPage() {
 
 	return (
 		<div className="landing-page">
-			<header className="landing-header">
-				<a className="brand" href="#home" aria-label="Zylo home">zylo<span>.</span></a>
-				<div className={`header-status status-${backendStatus}`} aria-live="polite">
-					<span className="status-indicator" />
-					{statusLabel}
-				</div>
-			</header>
+			<SiteHeader
+				backendStatus={backendStatus}
+				currentUser={currentUser}
+				onLogout={onLogout}
+				onNavigate={onNavigate}
+				statusLabel={statusLabel}
+			/>
 
 			<main className="landing-main" id="home">
 				<section className="intro" aria-labelledby="page-title">
@@ -99,10 +100,7 @@ function LandingPage() {
 				</section>
 			</main>
 
-			<footer className="landing-footer">
-				<span>ZYLO <span className="footer-divider">/</span> APPLICATION STATUS</span>
-				<span>Frontend: React <span className="footer-divider">·</span> Backend: Flask</span>
-			</footer>
+			<SiteFooter />
 		</div>
 	);
 }
