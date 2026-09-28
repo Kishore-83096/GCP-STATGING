@@ -1,19 +1,29 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 
 beforeEach(() => {
-	global.fetch = jest.fn().mockResolvedValue({ ok: true });
+	global.fetch = jest.fn((url) => Promise.resolve({
+		ok: true,
+		json: () => Promise.resolve(url.endsWith('/api/health')
+			? { status: 'ok' }
+			: { message: 'Welcome to the Zylo application!' }),
+	}));
 });
 
-test('renders the Zylo welcome storefront', () => {
+test('renders the Zylo landing page and checks both backend APIs', async () => {
 	render(<App />);
 	expect(screen.getByRole('link', { name: 'Zylo home' })).toBeInTheDocument();
-	expect(screen.getByRole('heading', { name: /a little more/i })).toBeInTheDocument();
-	expect(screen.getByRole('heading', { name: /good things, just in/i })).toBeInTheDocument();
+	expect(screen.getByRole('heading', { name: /everything is in its place/i })).toBeInTheDocument();
+	expect(screen.getByText('React active')).toBeInTheDocument();
+	await waitFor(() => expect(screen.getAllByText('Backend active')).toHaveLength(2));
+	expect(screen.getByText('Welcome to the Zylo application!')).toBeInTheDocument();
+	expect(global.fetch).toHaveBeenCalledWith('http://localhost:5000/api/health');
+	expect(global.fetch).toHaveBeenCalledWith('http://localhost:5000/api/welcome');
 });
 
-test('adding a product updates the shopping bag count', () => {
+test('rechecks backend status when requested', async () => {
 	render(<App />);
-	fireEvent.click(screen.getByRole('button', { name: /add cloud-knit sneaker to bag/i }));
-	expect(screen.getByRole('button', { name: 'Shopping bag, 1 item' })).toBeInTheDocument();
+	await waitFor(() => expect(screen.getAllByText('Backend active')).toHaveLength(2));
+	fireEvent.click(screen.getByRole('button', { name: 'Check again' }));
+	await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(4));
 });

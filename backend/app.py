@@ -13,7 +13,11 @@ def add_cors_headers(response):
 
 @app.route('/api/welcome', methods=['GET'])
 def welcome():
-	return jsonify({"message": "Welcome to the Monorepo App!"})
+	return jsonify({"message": "Welcome to the Zylo application!"})
+
+@app.route('/api/health', methods=['GET'])
+def health():
+	return jsonify({"status": "ok", "service": "zylo-backend"})
 
 if __name__ == '__main__':
 	app.run(
