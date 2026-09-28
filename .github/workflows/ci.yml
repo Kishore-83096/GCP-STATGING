@@ -2,9 +2,9 @@ name: CI Test Pipeline
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, production ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ production ]
 
 jobs:
   backend-ci:
@@ -62,7 +62,7 @@ jobs:
       - name: Scan Repository with Gitleaks in Docker
         run: docker run --rm -v "$GITHUB_WORKSPACE:/repo" zricethezav/gitleaks:latest detect --source=/repo --redact --verbose --exit-code 1
 
-  ci:
+  test:
     name: CI Complete
     runs-on: ubuntu-latest
     needs:
@@ -73,11 +73,11 @@ jobs:
       - name: Confirm all CI checks passed
         run: echo "All CI checks passed."
 
-  deploy-production:
+  deploy:
     name: Deploy to Render Production
     runs-on: ubuntu-latest
-    needs: ci
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
     environment:
       name: production
     steps:
