@@ -19,6 +19,9 @@ dist/
 !.env.example
 !**/.env.example
 
+# Local source-code archives
+/code/
+
 # Terraform state and local provider data
 .terraform/
 *.tfstate
