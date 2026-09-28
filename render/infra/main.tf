@@ -7,7 +7,7 @@ resource "render_web_service" "backend" {
   runtime_source = {
     docker = {
       repo_url        = var.repository_url
-      branch          = "main"
+      branch          = "production"
       dockerfile_path = "./Dockerfile"
       context         = "."
       auto_deploy     = false
@@ -22,7 +22,7 @@ resource "render_web_service" "backend" {
 resource "render_static_site" "frontend" {
   name           = var.frontend_site_name
   repo_url       = var.repository_url
-  branch         = "main"
+  branch         = "production"
   root_directory = "frontend"
   build_command  = "npm ci && npm run build"
   publish_path   = "build"
