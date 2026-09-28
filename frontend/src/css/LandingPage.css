@@ -8,6 +8,7 @@
 	--line: #203a58;
 	--blue: #68b4ff;
 	--blue-soft: #102846;
+	--green: #35d07f;
 	--red: #ff3b4d;
 	--box-radius: 4px;
 	--sans: 'Space Grotesk', 'Avenir Next', sans-serif;
@@ -41,7 +42,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .brand span { color: var(--red); }
 .header-status, .service-badge { display: inline-flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 600; }
 .status-indicator, .service-badge > span { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: var(--blue); }
-.status-online .status-indicator, .service-badge.is-online > span { background: var(--blue); }
+.status-online, .service-badge.is-online { color: var(--green); }
+.status-online .status-indicator, .service-badge.is-online > span { background: var(--green); }
+.status-offline, .service-badge.is-offline { color: var(--red); }
 .status-offline .status-indicator, .service-badge.is-offline > span { background: var(--red); }
 .status-checking .status-indicator, .service-badge.is-checking > span { background: var(--blue); animation: status-pulse 1.2s ease-in-out infinite; }
 
