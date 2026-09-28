@@ -1,0 +1,64 @@
+# Render Infrastructure
+
+Terraform manages a Docker-backed Render Web Service for the Flask backend and a Render Static Site for the React frontend. Render builds both directly from the configured GitHub repository; the frontend is not containerized.
+
+## Prerequisites
+
+- Terraform 1.3 or newer
+- A Render account with access to the GitHub repository
+- A Render API key
+- The GitHub repository connected to Render
+
+The Render Terraform provider reads the API key from `RENDER_API_KEY` and also requires the account or team owner ID in `RENDER_OWNER_ID`. The API key is secret; the owner ID is an identifier, not a credential. Neither is stored in Terraform configuration or variable files.
+
+## Configuration
+
+From PowerShell, set the API key for the current terminal session:
+
+```powershell
+$env:RENDER_API_KEY="YOUR_RENDER_API_KEY"
+$env:RENDER_OWNER_ID="YOUR_RENDER_OWNER_ID"
+```
+
+Get the owner ID from your Render user or team settings (it starts with `usr-` or `tea-`). Copy `terraform.tfvars.example` to `terraform.tfvars`, then set `repository_url` to this repository's HTTPS URL and `backend_region` to a Render-supported region. Terraform state is local in this directory; do not commit it. Local state is not shared or backed up, so keep it safe and consider a secure remote backend if multiple people need to manage these resources.
+
+The backend uses the repository-root `Dockerfile` and `.` build context. Its health check is `/api/health`; Render supplies `PORT`, which the application already reads. The frontend uses `npm ci && npm run build` from `frontend/` and publishes `frontend/build/`. The existing `REACT_APP_BACKEND_URL` setting is supplied by Render.
+
+Both services have Render automatic deploys disabled. Service names default to `zylo-backend` and `zylo-frontend`; the matching generated URLs are used for frontend API configuration and backend CORS. If Render assigns different generated URLs, update the service names or corresponding URL values and apply the Terraform change.
+
+## Terraform Workflow
+
+Run these commands from `render/infra`:
+
+```powershell
+terraform init
+terraform fmt -recursive
+terraform validate
+terraform plan
+```
+
+Review the plan before applying. To create or update the Render resources, run `terraform apply` intentionally and confirm its plan. `terraform destroy` deletes the managed Render services and is destructive; use it only when you intentionally want to remove them.
+
+The Render provider v1.9.1 documentation lists paid Web Service plans but does not list `free`, even though Render currently documents Free Web Services. The configuration requests `free` and passes Terraform's local configuration validation, but that does not prove Render's API will accept it when creating the service. Do not replace it with a paid plan. Static Sites are free on Render.
+
+## GitHub Actions
+
+The existing workflow runs backend tests/lint and builds the runtime Docker target, frontend lint/tests/build, and the repository secret scan. An aggregate `ci` job succeeds only when all checks pass. Only a successful push to `main` can continue to deployment:
+
+```text
+Push or pull request
+  -> CI checks
+  -> all checks pass
+  -> production environment approval
+  -> Render backend Web Service and frontend Static Site deploy
+```
+
+The deployment job triggers Render's Git-based deploy API for the exact commit that passed CI. Render automatic deploys are disabled so pushes and pull requests cannot deploy around this approval gate. Pull requests never run the production deployment job.
+
+In GitHub repository settings, create the `production` environment and configure required reviewers at **Settings -> Environments -> production -> Required reviewers**. Configure these environment values:
+
+- Secret `RENDER_API_KEY`: the Render API key used by the deployment API.
+- Variable `RENDER_BACKEND_SERVICE_ID`: Terraform output `backend_service_id`.
+- Variable `RENDER_FRONTEND_SERVICE_ID`: Terraform output `frontend_site_id`.
+
+Only the API key is a secret; service IDs are environment variables. Reviewers and environment protection are configured in GitHub settings, not simulated in workflow YAML.
