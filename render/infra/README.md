@@ -27,9 +27,9 @@ $owners = Invoke-RestMethod -Uri "https://api.render.com/v1/owners" -Headers @{ 
 $owners | ForEach-Object { $_.owner } | Format-Table id, name, type
 ```
 
-Set `RENDER_OWNER_ID` to the `id` from the workspace that should own these services. Use the API-returned ID exactly; a dashboard user ID may not be a valid workspace ID. Copy `terraform.tfvars.example` to `terraform.tfvars` and set `repository_url` to this repository's HTTPS URL. Service names are configurable there and have Zylo defaults. The branch (`main`) and region (`singapore`) are fixed project settings. Terraform state is local in this directory; do not commit it. Local state is not shared or backed up, so keep it safe and consider a secure remote backend if multiple people need to manage these resources.
+Set `RENDER_OWNER_ID` to the `id` from the workspace that should own these services. Use the API-returned ID exactly; a dashboard user ID may not be a valid workspace ID. Copy `terraform.tfvars.example` to `terraform.tfvars`, set `repository_url` to this repository's HTTPS URL, and provide the backend `database_url`, `jwt_secret_key`, and `frontend_url`. Use the actual frontend URL from `terraform output -raw frontend_url` after the site exists. Service names are configurable there and have Zylo defaults. The branch (`main`) and region (`singapore`) are fixed project settings. Terraform state is local in this directory and contains secret values; do not commit it, share it, or store it unencrypted. Consider a secure remote backend if multiple people need to manage these resources.
 
-The backend uses the repository-root `Dockerfile` and `.` build context. Its health check is `/api/health`; Render supplies `PORT`, which the application already reads. The frontend uses `npm ci && npm run build` from `frontend/` and publishes `frontend/build/`. Terraform automatically sets frontend build-time `REACT_APP_BACKEND_URL` from the backend service's computed Render URL. The backend API currently serves only public, unauthenticated read-only endpoints, so it returns `Access-Control-Allow-Origin: *` and does not need the frontend URL as an input.
+The backend uses the repository-root `Dockerfile` and `.` build context. Its health check is `/api/health`; Render supplies `PORT`, which the application already reads. A Terraform-managed Render environment group supplies `DATABASE_URL`, `JWT_SECRET_KEY`, and `FRONTEND_URL` to the backend. The group is linked separately so the Free-plan service's direct `env_vars` field remains ignored, avoiding the provider's problematic service-update path. The frontend uses `npm ci && npm run build` from `frontend/` and publishes `frontend/build/`. Terraform automatically sets frontend build-time `REACT_APP_BACKEND_URL` from the backend service's computed Render URL.
 
 Both services have Render automatic deploys disabled. Service names default to `zylo-backend` and `zylo-frontend`. Render-generated service URLs are available automatically as the `backend_url` and `frontend_url` Terraform outputs; URL suffixes are handled by the provider and do not need to be guessed or entered.
 
@@ -52,7 +52,7 @@ Provider v1.9.1 also sends `maintenance_mode` on Web Service updates, which Rend
 
 ## GitHub Actions
 
-The existing workflow runs backend tests/lint and builds the runtime Docker target, frontend lint/tests/build, and the repository secret scan. An aggregate `ci` job succeeds only when all checks pass. Only a successful push to `main` can continue to deployment:
+The existing workflow builds and checks the backend Docker target, then runs auth API tests against an ephemeral PostgreSQL 16 service. It also runs frontend lint/tests/build and the repository secret scan. CI uses disposable credentials and never connects to Neon. The aggregate `CI Complete` job succeeds only when all checks pass. Only a successful push to `production` can continue to deployment:
 
 ```text
 Push or pull request
@@ -69,5 +69,7 @@ In GitHub repository settings, create the `production` environment and configure
 - Secret `RENDER_API_KEY`: the Render API key used by the deployment API.
 - Variable `RENDER_BACKEND_SERVICE_ID`: Terraform output `backend_service_id`.
 - Variable `RENDER_FRONTEND_SERVICE_ID`: Terraform output `frontend_site_id`.
+
+No database secret is required in GitHub Actions for CI. The current deploy job triggers Render deployments but does not run Terraform. If Terraform is later run by an Actions job, provide `TF_VAR_database_url` and `TF_VAR_jwt_secret_key` as GitHub environment secrets, and `TF_VAR_frontend_url` as an environment variable. For local applies, use an untracked `terraform.tfvars` or set the corresponding `TF_VAR_...` variables in the shell.
 
 Only the API key is a secret; service IDs are environment variables. Reviewers and environment protection are configured in GitHub settings, not simulated in workflow YAML.

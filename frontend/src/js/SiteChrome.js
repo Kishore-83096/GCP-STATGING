@@ -26,7 +26,7 @@ export function SiteHeader({ backendStatus, currentUser, onLogout, onNavigate, s
 				)}
 				{currentUser ? (
 					<div className="account-nav">
-						<span className="account-email">{currentUser}</span>
+						<span className="account-email">{currentUser.username || currentUser.email || currentUser}</span>
 						<button className="account-link" type="button" onClick={onLogout}>Log out</button>
 					</div>
 				) : (

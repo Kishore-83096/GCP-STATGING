@@ -7,6 +7,7 @@ COPY backend/ .
 
 # --- CI: Backend Checks ---
 FROM backend-base AS backend-ci
+ENV DATABASE_URL=sqlite://
 RUN pip install --no-cache-dir ruff
 RUN python -m pytest && ruff check . && python -m compileall -q . && touch /tmp/backend-checks-passed
 

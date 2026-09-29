@@ -20,11 +20,11 @@ export function fetchHealth() {
   return checkBackendHealth();
 }
 
-export async function registerUser(email, password) {
+export async function registerUser(username, password, confirmPassword) {
   const response = await fetch(`${API_BASE_URL}/api/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ username, password, confirm_password: confirmPassword }),
   });
   const data = await response.json();
   if (!response.ok) {
@@ -36,11 +36,11 @@ export async function registerUser(email, password) {
   return data;
 }
 
-export async function loginUser(email, password) {
+export async function loginUser(identifier, password) {
   const response = await fetch(`${API_BASE_URL}/api/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ identifier, password }),
   });
   const data = await response.json();
   if (!response.ok) {
@@ -69,7 +69,7 @@ export async function fetchUserProfile() {
   if (!response.ok) {
     throw new Error(data.msg || data.error || 'Failed to fetch profile');
   }
-  return data;
+  return data.user;
 }
 
 export function logoutUser() {
