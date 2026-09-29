@@ -1,3 +1,8 @@
 repository_url       = "https://github.com/Kishore-83096/GCP-STATGING.git"
 backend_service_name = "zylo-backend"
 frontend_site_name   = "zylo-frontend"
+
+# Replace with the production database URL, a random JWT secret, and frontend origin.
+database_url   = "postgresql://username:password@hostname/database?sslmode=require"
+jwt_secret_key = "replace-with-a-random-secret-at-least-32-characters-long"
+frontend_url   = "https://zylo-frontend.onrender.com"

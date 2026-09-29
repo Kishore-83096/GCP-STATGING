@@ -8,15 +8,34 @@ on:
 
 jobs:
   backend-ci:
-    name: Backend Lint, Tests, and Build Checks
+    name: Backend Lint, Tests, and PostgreSQL Auth Integration
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: zylo_test
+          POSTGRES_USER: zylo
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U zylo -d zylo_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Run Backend Checks in Docker
-        run: docker build --target backend -t monorepo-backend .
+        run: |
+          set -euo pipefail
+          docker build --target backend -t monorepo-backend .
+          docker run --rm --network host \
+            --env DATABASE_URL='postgresql+psycopg://zylo:ci_test_password@127.0.0.1:5432/zylo_test' \
+            monorepo-backend python -m pytest
 
   frontend-ci:
     name: Frontend Lint, Tests, and Production Build
